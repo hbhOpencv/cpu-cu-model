@@ -1,1 +1,1 @@
-# cpu-cu-model
+# 大学项目
