@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
-
+#define DEBUG 1  
+#define debug_print(fmt, ...) \
+            do { if (DEBUG) printf(fmt, ##__VA_ARGS__); } while (0)
 #define REG_NUM 32
 #define MEM_SIZE 102400
 #define OPCODE_R_TYPE 0x00
@@ -10,7 +12,8 @@
 #define OPCODE_HLT 0x3F
 #define FUNC_ADD 0x20
 #define FUNC_SUB 0x22
-uint32_t reg[REG_NUM];  
+
+uint32_t reg[REG_NUM];
 uint32_t mem[MEM_SIZE];
 uint32_t PC = 0;
 
@@ -30,14 +33,10 @@ typedef struct {
     ALUOperation ALUOp;
 } ControlSignals;
 
-
 uint32_t ALU(uint32_t A, uint32_t B, ALUOperation op) {
     switch (op) {
         case ADD: return A + B;
         case SUB: return A - B;
-        //case AND: return A & B;
-        //case OR:  return A | B;
-        //case SLT: return (A < B) ? 1 : 0;
         default:  return 0;
     }
 }
@@ -48,7 +47,6 @@ uint32_t fetch() {
         return 0;
     }
     return mem[PC / 4];
-  
 }
 
 void decode(uint32_t instruction, ControlSignals *ctrl, uint32_t *rs, uint32_t *rt, uint32_t *rd, uint32_t *imm, uint32_t *opcode) {
@@ -81,9 +79,6 @@ void decode(uint32_t instruction, ControlSignals *ctrl, uint32_t *rs, uint32_t *
                 case FUNC_SUB: // SUB
                     ctrl->ALUOp = SUB;
                     break;
-               // case FUNC_JR: // JR
-                    //ctrl->Jump = 1;
-                    //break;
             }
             break;
         case OPCODE_ADDI: // ADDI
@@ -105,7 +100,6 @@ void decode(uint32_t instruction, ControlSignals *ctrl, uint32_t *rs, uint32_t *
     }
 }
 
-
 void execute(uint32_t rs, uint32_t rt, uint32_t rd, uint32_t imm, ControlSignals ctrl) {
     uint32_t ALUResult;
     if (ctrl.Jump) {
@@ -120,11 +114,9 @@ void execute(uint32_t rs, uint32_t rt, uint32_t rd, uint32_t imm, ControlSignals
             PC += (int32_t)imm << 2; 
             return;
         }
-    } 
-	else if (ctrl.ALUSrc == 1) {
+    } else if (ctrl.ALUSrc == 1) {
         ALUResult = ALU(reg[rs], imm, ctrl.ALUOp); // 处理 ADDI
-    } 
-	else {
+    } else {
         ALUResult = ALU(reg[rs], reg[rt], ctrl.ALUOp); 
     }
     if (ctrl.RegWrite) {
@@ -134,9 +126,9 @@ void execute(uint32_t rs, uint32_t rt, uint32_t rd, uint32_t imm, ControlSignals
             reg[rt] = ALUResult; // I-type 指令
         }
     }
-    printf("After instruction execution:\n");
+    debug_print("After instruction execution:\n");
     if (ctrl.RegWrite) {
-        printf("Register $%d (written back) value: %u\n", ctrl.RegDst ? rd : rt, reg[ctrl.RegDst ? rd : rt]);
+        debug_print("Register $%d (written back) value: %u\n", ctrl.RegDst ? rd : rt, reg[ctrl.RegDst ? rd : rt]);
     }
 }
 
@@ -148,7 +140,7 @@ void next_instruction(ControlSignals ctrl, uint32_t imm, uint32_t opcode) {
     } else {
         PC += 4; 
     }
-    printf("PC now is: %u\n", PC); 
+    debug_print("PC now is: %u\n", PC); 
 }
 
 int main() {
@@ -166,7 +158,6 @@ int main() {
         ControlSignals ctrl;
         uint32_t rs, rt, rd, imm, opcode;
         decode(instruction, &ctrl, &rs, &rt, &rd, &imm, &opcode);
-        // 检查是否为 HLT 指令
         if (opcode == OPCODE_HLT) {
             printf("HLT instruction encountered. Halting execution.\n");
             break;
@@ -178,6 +169,6 @@ int main() {
     for (int i = 0; i < REG_NUM; i++) {
         printf("$%d: %u\n", i, reg[i]);
     }
-    getchar();  // 等待用户按下回车键
+    getchar();
     return 0;
 }
