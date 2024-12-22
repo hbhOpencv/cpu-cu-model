@@ -58,7 +58,10 @@
 #### 10.CPU功能测试，以1累加到100为例
 运行结果</br>
 ![img_13.png](img/img_13.png)</br>
-跳转次数太多只截取了最后一次指令循环。
+跳转次数太多只截取了最后一次指令循环。</br>
+## 视频讲解连接
+https://www.bilibili.com/video/BV1wrkYYVEmc/?vd_source=11463a3097c9e2db8a56081b5bb30b48
+
 
 
 
