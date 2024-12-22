@@ -7,7 +7,7 @@
 #define OPCODE_ADDI 0x08
 #define OPCODE_BNE 0x05
 #define OPCODE_LW 0x23
-#define OPCODE_HLT 0x3F
+#define OPCODE_NOP 0x3F
 #define FUNC_ADD 0x20
 #define FUNC_SUB 0x22
 
@@ -90,7 +90,7 @@ void decode(uint32_t instruction, ControlSignals *ctrl, uint32_t *rs, uint32_t *
             ctrl->Branch = 1;
             ctrl->ALUOp = SUB;
             break;
-        case OPCODE_HLT:  // HLT
+        case OPCODE_NOP:  // HLT
             ctrl->RegWrite = 0;
             break;
     }
@@ -148,8 +148,8 @@ int main() {
         ControlSignals ctrl;
         uint32_t rs, rt, rd, imm, opcode;
         decode(instruction, &ctrl, &rs, &rt, &rd, &imm, &opcode);
-        if (opcode == OPCODE_HLT) {
-            printf("HLT instruction encountered. Halting execution.\n");
+        if (opcode == OPCODE_NOP) {
+            printf("NOP instruction encountered. Halting execution.\n");
             break;
         }
         execute(rs, rt, rd, imm, ctrl);
@@ -162,4 +162,3 @@ int main() {
      getchar();  // 等待用户按下回车键
     return 0;
 }
-    
